@@ -65,9 +65,24 @@ jobs:
 
       - name: Create or update GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            dist/*.tar.gz
-            dist/*.zip
-            dist/checksums.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          title="togx ${tag}"
+          notes_file=".github/release-notes-${tag}.md"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            if [ -f "$notes_file" ]; then
+              gh release edit "$tag" --title "$title" --notes-file "$notes_file"
+            else
+              gh release edit "$tag" --title "$title" --generate-notes
+            fi
+            gh release upload "$tag" dist/*.tar.gz dist/*.zip dist/checksums.txt --clobber
+          else
+            if [ -f "$notes_file" ]; then
+              gh release create "$tag" --title "$title" --notes-file "$notes_file" dist/*.tar.gz dist/*.zip dist/checksums.txt
+            else
+              gh release create "$tag" --title "$title" --generate-notes dist/*.tar.gz dist/*.zip dist/checksums.txt
+            fi
+          fi
