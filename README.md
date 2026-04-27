@@ -1,6 +1,8 @@
-# todo-go-htmx
+# togx
 
 Repository: `https://github.com/safwanehfaz/go-htmx-todo`
+
+Version: `0.1.2` (source of truth in `VERSION`)
 
 Minimal Todo app built with pure Go (`net/http`, `html/template`) and HTMX.
 
@@ -11,7 +13,10 @@ No framework, no ORM, no backend plugin system, no extra Go libraries.
 - Add, toggle, and delete todos without page reloads (HTMX requests)
 - Server-rendered HTML templates
 - In-memory todo storage with mutex for safe concurrent access
-- Single binary deployment
+- Single binary deployment (`togx`)
+- Persistent todo storage in JSON (`$XDG_CONFIG_HOME/togx/todos.json`)
+- CLI lifecycle controls: `start`, `stop`, `quit`, `status`, `autostart`
+- Colorized terminal logs for key lifecycle/events
 
 ## Stack
 
@@ -22,15 +27,17 @@ No framework, no ORM, no backend plugin system, no extra Go libraries.
 ## Run locally
 
 ```bash
-go run .
+go run . start --foreground
 ```
 
-Open `http://localhost:8080`.
+Open `http://127.0.0.1:8080`.
 
 ## Build
 
 ```bash
-go build -o todo-go-htmx .
+go build -o togx .
+
+./togx start --foreground
 ```
 
 ## HTTP routes
@@ -39,6 +46,40 @@ go build -o todo-go-htmx .
 - `POST /todos` -> add item, returns todo list fragment
 - `POST /todos/{id}/toggle` -> toggle complete, returns todo list fragment
 - `DELETE /todos/{id}` -> delete item, returns todo list fragment
+
+## CLI usage
+
+```bash
+# Start in foreground (Ctrl+C to stop)
+togx start --foreground
+
+# Start detached/background
+togx start --detach
+
+# Check status
+togx status
+
+# Graceful stop
+togx stop
+
+# Force stop
+togx stop --force
+togx stop -f
+
+# Alias for stop
+togx quit
+
+# Linux systemd user autostart
+togx autostart enable
+togx autostart status
+togx autostart disable
+```
+
+Notes:
+
+- `Ctrl+C` triggers graceful shutdown and removes pid file.
+- `stop --force` uses hard kill.
+- No hidden background daemon is started unless you run `--detach` or `autostart enable`.
 
 ## Cross-platform binaries
 
@@ -109,9 +150,26 @@ makepkg --printsrcinfo > .SRCINFO
 
 Then publish to your AUR package repository.
 
+## Release versioning
+
+- Canonical version lives in `VERSION`.
+- Keep these in sync when releasing:
+  - `VERSION`
+  - `packaging/aur/PKGBUILD` (`pkgver`)
+  - `packaging/aur/.SRCINFO` (regenerate from `PKGBUILD`)
+- Suggested release flow:
+
+```bash
+ver="$(cat VERSION)"
+git add VERSION packaging/aur/PKGBUILD packaging/aur/.SRCINFO
+git commit -m "Release v${ver}"
+git tag -a "v${ver}" -m "v${ver}"
+git push && git push origin "v${ver}"
+```
+
 ## Project structure
 
-- `main.go` - app server, templates, handlers, in-memory store
+- `main.go` - app server, templates, CLI lifecycle manager, JSON persistence
 - `Taskfile.yml` - Go-task commands
 - `scripts/build-all.sh` - local multi-target build script
 - `.github/workflows/release.yml` - CI release automation

@@ -4,12 +4,12 @@ tasks:
   run:
     desc: Run the app locally
     cmds:
-      - go run .
+      - go run . start --foreground
 
   build:
     desc: Build binary for current platform
     cmds:
-      - go build -o todo-go-htmx .
+      - go build -o togx .
 
   build:all:
     desc: Build release binaries for all targets
@@ -19,4 +19,4 @@ tasks:
   clean:
     desc: Remove build artifacts
     cmds:
-      - rm -rf dist todo-go-htmx todo-go-htmx.exe
+      - rm -rf dist togx togx.exe

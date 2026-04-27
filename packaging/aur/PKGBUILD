@@ -1,7 +1,7 @@
-pkgname=todo-go-htmx
-pkgver=0.1.0
+pkgname=togx
+pkgver=0.1.2
 pkgrel=1
-pkgdesc="Minimal Todo app built with pure Go and HTMX"
+pkgdesc="Minimal todo app with pure Go and HTMX"
 _repo_owner="safwanehfaz"
 _repo_name="go-htmx-todo"
 arch=('x86_64' 'aarch64')
@@ -23,4 +23,5 @@ package() {
   cd "$srcdir/${_repo_name}-${pkgver}"
   install -Dm755 "$pkgname" "$pkgdir/usr/bin/$pkgname"
   install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

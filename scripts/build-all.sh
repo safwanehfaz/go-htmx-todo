@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-APP_NAME="todo-go-htmx"
+APP_NAME="togx"
 OUT_DIR="dist"
 
 require_android_armv7="${REQUIRE_ANDROID_ARMV7:-0}"
