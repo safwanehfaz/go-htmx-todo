@@ -118,4 +118,4 @@ Then publish to your AUR package repository.
 
 ## License
 
-Add your preferred license file (for example `MIT`) before publishing packages.
+MIT. See `LICENSE`.
