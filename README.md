@@ -1,204 +1,138 @@
 # togx
 
+[![Release](https://img.shields.io/github/v/release/safwanehfaz/go-htmx-todo?style=for-the-badge)](https://github.com/safwanehfaz/go-htmx-todo/releases)
+[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go)](https://go.dev/)
+[![Workflow](https://img.shields.io/github/actions/workflow/status/safwanehfaz/go-htmx-todo/release.yml?style=for-the-badge&label=release)](https://github.com/safwanehfaz/go-htmx-todo/actions/workflows/release.yml)
+[![License](https://img.shields.io/github/license/safwanehfaz/go-htmx-todo?style=for-the-badge)](LICENSE)
+
+Minimal Todo app with pure Go + HTMX, no backend framework, no ORM, and no extra Go libraries.
+
 Repository: `https://github.com/safwanehfaz/go-htmx-todo`
 
-Version: `0.1.2` (source of truth in `VERSION`)
+Version source of truth: `VERSION`
 
-Minimal Todo app built with pure Go (`net/http`, `html/template`) and HTMX.
+## Why togx
 
-No framework, no ORM, no backend plugin system, no extra Go libraries.
+- Fast startup, one binary, simple deployment
+- Interactive server-rendered UI via HTMX
+- Persistent todos in JSON (`$XDG_CONFIG_HOME/togx/todos.json`)
+- CLI lifecycle controls (`start`, `stop`, `quit`, `status`, `autostart`)
+- Colorized logs for runtime visibility
 
-## Features
-
-- Add, toggle, and delete todos without page reloads (HTMX requests)
-- Server-rendered HTML templates
-- In-memory todo storage with mutex for safe concurrent access
-- Single binary deployment (`togx`)
-- Persistent todo storage in JSON (`$XDG_CONFIG_HOME/togx/todos.json`)
-- CLI lifecycle controls: `start`, `stop`, `quit`, `status`, `autostart`
-- Colorized terminal logs for key lifecycle/events
-
-## Stack
-
-- Go 1.22+
-- HTMX loaded from CDN in HTML
-- Standard library only on backend
-
-## Run locally
+## Quick start
 
 ```bash
-go run . start --foreground
+go build -o togx .
+./togx start --foreground
 ```
 
 Open `http://127.0.0.1:8080`.
 
-## Build
+## CLI commands
 
 ```bash
-go build -o togx .
-
-./togx start --foreground
-```
-
-## HTTP routes
-
-- `GET /` -> full page
-- `POST /todos` -> add item, returns todo list fragment
-- `POST /todos/{id}/toggle` -> toggle complete, returns todo list fragment
-- `DELETE /todos/{id}` -> delete item, returns todo list fragment
-
-## CLI usage
-
-```bash
-# Start in foreground (Ctrl+C to stop)
+# foreground (Ctrl+C graceful stop)
 togx start --foreground
 
-# Start detached/background
+# background
 togx start --detach
 
-# Check status
+# status
 togx status
 
-# Graceful stop
+# graceful stop
 togx stop
 
-# Force stop
+# force stop
 togx stop --force
 togx stop -f
 
-# Alias for stop
+# alias
 togx quit
 
-# Linux systemd user autostart
+# linux autostart (systemd --user)
 togx autostart enable
 togx autostart status
 togx autostart disable
 ```
 
-Notes:
+## Runtime behavior
 
-- `Ctrl+C` triggers graceful shutdown and removes pid file.
-- `stop --force` uses hard kill.
-- No hidden background daemon is started unless you run `--detach` or `autostart enable`.
+- `Ctrl+C` gracefully shuts down and removes pid file
+- `--force` sends hard kill
+- No hidden daemon unless you explicitly run `--detach` or `autostart enable`
 
-## Cross-platform binaries
+## API routes
 
-This repo includes:
+- `GET /` full page
+- `POST /todos` add item, returns list fragment
+- `POST /todos/{id}/toggle` toggle item, returns list fragment
+- `DELETE /todos/{id}` delete item, returns list fragment
+- `GET /healthz` simple health check
 
-- GitHub Actions workflow: `.github/workflows/release.yml`
-- Local cross-build script: `scripts/build-all.sh`
-- Go-task file (ninja-like task runner written in Go): `Taskfile.yml`
+## Build targets
 
-Targets produced:
+| Platform | Architectures |
+|---|---|
+| Linux | `amd64`, `arm64`, `armv7` |
+| macOS | `amd64`, `arm64` |
+| Windows | `amd64`, `arm64` |
+| Android/Termux | `arm64-v8a`, `armv7` |
 
-- Linux: `x86_64`, `arm64`, `armv7`
-- macOS: `x86_64`, `arm64`
-- Windows: `x86_64`, `arm64`
-- Android (Termux): `arm64-v8a`, `armeabi-v7a`
-
-Android notes (Termux):
-
-- Artifacts are built with `GOOS=android`
-- `arm64-v8a` uses `GOARCH=arm64`
-- `armeabi-v7a` uses `GOARCH=arm` and `GOARM=7`
-- `armeabi-v7a` needs Android NDK clang for cgo; set `ANDROID_NDK_HOME`/`ANDROID_NDK_ROOT` (or `CC_ANDROID_ARMV7`) to enable it.
-- You can force failure when Android armv7 is unavailable by setting `REQUIRE_ANDROID_ARMV7=1`.
-
-## Local release builds
-
-With Go-task:
+Build all locally:
 
 ```bash
 task build:all
-```
-
-Or directly:
-
-```bash
+# or
 bash scripts/build-all.sh
 ```
 
-Artifacts are written to `dist/`.
+## Releases
 
-## GitHub release workflow
+- Tag format: `vX.Y.Z`
+- CI builds archives + checksums and publishes GitHub Release assets
+- If `.github/release-notes-vX.Y.Z.md` exists, CI uses it automatically for release body
 
-The release workflow runs on:
-
-- tag push: `v*.*.*`
-- manual dispatch
-
-It compiles all targets, creates archives, uploads workflow artifacts, and (for tags) creates/updates a GitHub release with all binaries and a checksum file.
-
-## AUR packaging (Arch Linux)
-
-AUR files are included in `packaging/aur/`:
-
-- `PKGBUILD`
-- `.SRCINFO`
-
-Steps before publishing to AUR:
-
-1. Update `url` and source URL to your real GitHub repo.
-2. Set real checksums (replace `SKIP`) using `sha256sum`.
-3. Update `pkgver` for each new release.
-4. Regenerate `.SRCINFO`:
+## Versioning automation
 
 ```bash
-cd packaging/aur
-makepkg --printsrcinfo > .SRCINFO
-```
-
-Then publish to your AUR package repository.
-
-## Release versioning
-
-- Canonical version lives in `VERSION`.
-- Keep these in sync when releasing:
-  - `VERSION`
-  - `packaging/aur/PKGBUILD` (`pkgver`)
-  - `packaging/aur/.SRCINFO` (regenerate from `PKGBUILD`)
-- Suggested release flow:
-
-```bash
-ver="$(cat VERSION)"
-git add VERSION packaging/aur/PKGBUILD packaging/aur/.SRCINFO
-git commit -m "Release v${ver}"
-git tag -a "v${ver}" -m "v${ver}"
-git push && git push origin "v${ver}"
-```
-
-- Automated release helper:
-
-```bash
-bash scripts/release.sh
-# or
 task release
+# or
+bash scripts/release.sh
 ```
 
-`scripts/release.sh` will:
+This helper will:
 
 - read `VERSION`
 - sync `packaging/aur/PKGBUILD` `pkgver`
 - regenerate `packaging/aur/.SRCINFO`
-- create `Release vX.Y.Z` commit when needed
+- create `Release vX.Y.Z` commit (when needed)
 - create and push `vX.Y.Z` tag
 
-Release workflow safety check:
+Safety gate in CI (tag builds):
 
-- On tag builds, CI validates all three versions match:
-  - Git tag (`vX.Y.Z`)
-  - `VERSION`
-  - `packaging/aur/PKGBUILD` `pkgver`
-- If mismatched, release fails and no assets are published.
+- Git tag version, `VERSION`, and `PKGBUILD pkgver` must match
+- mismatch => workflow fails and no release upload
 
-## Project structure
+## AUR
 
-- `main.go` - app server, templates, CLI lifecycle manager, JSON persistence
-- `Taskfile.yml` - Go-task commands
-- `scripts/build-all.sh` - local multi-target build script
-- `.github/workflows/release.yml` - CI release automation
-- `packaging/aur/` - AUR metadata
+Files: `packaging/aur/PKGBUILD`, `packaging/aur/.SRCINFO`
+
+Before publishing to AUR:
+
+1. set final `sha256sums` in `PKGBUILD` (replace `SKIP`)
+2. regenerate `.SRCINFO` with `makepkg --printsrcinfo > .SRCINFO`
+3. push to your AUR package repo
+
+## Project layout
+
+- `main.go` app server, templates, CLI lifecycle, JSON persistence
+- `Taskfile.yml` task runner commands
+- `scripts/build-all.sh` cross-platform build script
+- `scripts/release.sh` version+tag release helper
+- `.github/workflows/release.yml` CI release workflow
+- `packaging/aur/` AUR metadata
 
 ## License
 
-MIT. See `LICENSE`.
+MIT (`LICENSE`).

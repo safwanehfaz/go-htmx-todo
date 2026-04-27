@@ -1,5 +1,5 @@
 pkgname=togx
-pkgver=0.1.2
+pkgver=0.1.3
 pkgrel=1
 pkgdesc="Minimal todo app with pure Go and HTMX"
 _repo_owner="safwanehfaz"

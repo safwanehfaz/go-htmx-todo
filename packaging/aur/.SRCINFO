@@ -1,6 +1,6 @@
 pkgbase = togx
 	pkgdesc = Minimal todo app with pure Go and HTMX
-	pkgver = 0.1.2
+	pkgver = 0.1.3
 	pkgrel = 1
 	url = https://github.com/safwanehfaz/go-htmx-todo
 	arch = x86_64
@@ -8,7 +8,7 @@ pkgbase = togx
 	license = MIT
 	makedepends = go
 	depends = glibc
-	source = togx-0.1.2.tar.gz::https://github.com/safwanehfaz/go-htmx-todo/archive/refs/tags/v0.1.2.tar.gz
+	source = togx-0.1.3.tar.gz::https://github.com/safwanehfaz/go-htmx-todo/archive/refs/tags/v0.1.3.tar.gz
 	sha256sums = SKIP
 
 pkgname = togx
