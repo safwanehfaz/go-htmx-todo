@@ -5,6 +5,8 @@ set -euo pipefail
 APP_NAME="todo-go-htmx"
 OUT_DIR="dist"
 
+require_android_armv7="${REQUIRE_ANDROID_ARMV7:-0}"
+
 rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR"
 
@@ -44,14 +46,24 @@ build_android_armv7() {
   local cc=""
   if [[ -n "${CC_ANDROID_ARMV7:-}" ]]; then
     cc="$CC_ANDROID_ARMV7"
-  elif [[ -n "${ANDROID_NDK_HOME:-}" ]]; then
-    local candidate="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang"
-    if [[ -x "$candidate" ]]; then
-      cc="$candidate"
+  else
+    local ndk_home="${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT:-}}"
+    if [[ -n "$ndk_home" ]]; then
+      local candidate_glob
+      for candidate_glob in "$ndk_home"/toolchains/llvm/prebuilt/*/bin/armv7a-linux-androideabi24-clang; do
+        if [[ -x "$candidate_glob" ]]; then
+          cc="$candidate_glob"
+          break
+        fi
+      done
     fi
   fi
 
   if [[ -z "$cc" ]]; then
+    if [[ "$require_android_armv7" == "1" ]]; then
+      echo "ERROR: $suffix required but NDK clang not found."
+      return 1
+    fi
     echo "Skipping $suffix (NDK clang not found)."
     return 0
   fi

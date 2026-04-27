@@ -60,7 +60,8 @@ Android notes (Termux):
 - Artifacts are built with `GOOS=android`
 - `arm64-v8a` uses `GOARCH=arm64`
 - `armeabi-v7a` uses `GOARCH=arm` and `GOARM=7`
-- `armeabi-v7a` needs Android NDK clang for cgo; set `ANDROID_NDK_HOME` (or `CC_ANDROID_ARMV7`) to enable it. If not found, that one target is skipped.
+- `armeabi-v7a` needs Android NDK clang for cgo; set `ANDROID_NDK_HOME`/`ANDROID_NDK_ROOT` (or `CC_ANDROID_ARMV7`) to enable it.
+- You can force failure when Android armv7 is unavailable by setting `REQUIRE_ANDROID_ARMV7=1`.
 
 ## Local release builds
 

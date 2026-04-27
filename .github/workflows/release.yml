@@ -30,6 +30,7 @@ jobs:
       - name: Build all targets
         env:
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_ROOT }}
+          REQUIRE_ANDROID_ARMV7: "1"
         run: bash scripts/build-all.sh
 
       - name: Generate checksums
