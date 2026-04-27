@@ -183,6 +183,14 @@ task release
 - create `Release vX.Y.Z` commit when needed
 - create and push `vX.Y.Z` tag
 
+Release workflow safety check:
+
+- On tag builds, CI validates all three versions match:
+  - Git tag (`vX.Y.Z`)
+  - `VERSION`
+  - `packaging/aur/PKGBUILD` `pkgver`
+- If mismatched, release fails and no assets are published.
+
 ## Project structure
 
 - `main.go` - app server, templates, CLI lifecycle manager, JSON persistence
