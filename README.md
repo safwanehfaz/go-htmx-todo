@@ -167,6 +167,22 @@ git tag -a "v${ver}" -m "v${ver}"
 git push && git push origin "v${ver}"
 ```
 
+- Automated release helper:
+
+```bash
+bash scripts/release.sh
+# or
+task release
+```
+
+`scripts/release.sh` will:
+
+- read `VERSION`
+- sync `packaging/aur/PKGBUILD` `pkgver`
+- regenerate `packaging/aur/.SRCINFO`
+- create `Release vX.Y.Z` commit when needed
+- create and push `vX.Y.Z` tag
+
 ## Project structure
 
 - `main.go` - app server, templates, CLI lifecycle manager, JSON persistence
